@@ -76,10 +76,10 @@ class CIFGMatrixMemory:
         self.C = np.zeros((d_mem, d_mem), dtype=np.float64)
 
     def write(self, key: np.ndarray, value: np.ndarray, forget_gate: float = 0.9) -> None:
-        # Outer product as candidate
+        # Outer product as candidate: store value (x) key^T so that read(key) ~ value
         k = key.flatten()[:self.d_mem]
         v = value.flatten()[:self.d_mem]
-        candidate = np.outer(k, v)
+        candidate = np.outer(v, k)  # (d_mem, d_mem): rows are v[i] * k
         candidate = candidate / (np.linalg.norm(candidate) + 1e-8)
         # CIFG update: C_new = f * C_old + (1-f) * candidate
         self.C = forget_gate * self.C + (1.0 - forget_gate) * candidate
