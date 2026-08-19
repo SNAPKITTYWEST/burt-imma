@@ -1,0 +1,345 @@
+// BURT-IMMA Constraint Graph
+// Visualize with: dot -Tpng constraint_graph.dot -o constraint_graph.png
+// Or: dot -Tsvg constraint_graph.dot -o constraint_graph.svg
+
+digraph BURT_IMMA {
+    // Global graph attributes
+    rankdir=TB;
+    fontname="Helvetica";
+    fontsize=12;
+    label="BURT-IMMA Constraint Graph\nProject: BURT-IMMA | Contact: jessica@collectivekitty.com | License: BSL-1.1";
+    labelloc=t;
+    compound=true;
+    nodesep=0.8;
+    ranksep=1.0;
+
+    // Node defaults
+    node [
+        shape=box,
+        style="rounded,filled",
+        fontname="Helvetica",
+        fontsize=10,
+        fillcolor="#E8F4FD",
+        color="#2C3E50"
+    ];
+
+    // Edge defaults
+    edge [
+        fontname="Helvetica",
+        fontsize=8,
+        color="#34495E"
+    ];
+
+    // =============================================
+    // Subgraph: Feature Extraction
+    // =============================================
+    subgraph cluster_feature_extraction {
+        label="Feature Extraction";
+        style="rounded,dashed";
+        color="#3498DB";
+        fontcolor="#3498DB";
+        fontsize=11;
+
+        Input [
+            label="Input\n[batch, seq_len]",
+            shape=ellipse,
+            fillcolor="#AED6F1"
+        ];
+
+        SmoothLeaky [
+            label="SmoothLeaky\nActivation\n\nk=1.0, alpha=0.01\nSmooth for EP",
+            fillcolor="#D4EFDF"
+        ];
+
+        GatesNorm [
+            label="GatesNorm\nNormalization\n\ngamma, beta learnable\nPer-expert dim",
+            fillcolor="#D4EFDF"
+        ];
+    }
+
+    // =============================================
+    // Subgraph: Memory System
+    // =============================================
+    subgraph cluster_memory_system {
+        label="Memory System";
+        style="rounded,dashed";
+        color="#E74C3C";
+        fontcolor="#E74C3C";
+        fontsize=11;
+
+        CIFGMemory [
+            label="CIFGMemory\n\nC_global: [d, d]\nC_expert: [K, d_e, d_e]\nf = sigma(W_f * [h,x])\nC_new = f*C + (1-f)*candidate",
+            fillcolor="#FADBD8",
+            shape=box3d
+        ];
+    }
+
+    // =============================================
+    // Subgraph: Routing
+    // =============================================
+    subgraph cluster_routing {
+        label="Routing (Sparse MoE)";
+        style="rounded,dashed";
+        color="#F39C12";
+        fontcolor="#F39C12";
+        fontsize=11;
+
+        GatesRouter [
+            label="GatesRouter\n\ntop_k=2\nentropy_bound=0.20\nL1 sparsity",
+            fillcolor="#FEF9E7"
+        ];
+
+        Expert1 [
+            label="Expert 1\n[d_expert=256]",
+            fillcolor="#FDF2E9"
+        ];
+
+        Expert2 [
+            label="Expert 2\n[d_expert=256]",
+            fillcolor="#FDF2E9"
+        ];
+
+        Expert3 [
+            label="Expert 3\n[d_expert=256]",
+            fillcolor="#FDF2E9"
+        ];
+
+        Expert4 [
+            label="Expert 4\n[d_expert=256]",
+            fillcolor="#FDF2E9"
+        ];
+    }
+
+    // =============================================
+    // Subgraph: Output Head
+    // =============================================
+    subgraph cluster_output_head {
+        label="Output Head";
+        style="rounded,dashed";
+        color="#8E44AD";
+        fontcolor="#8E44AD";
+        fontsize=11;
+
+        InductionHeads [
+            label="Superpositioned\nInduction Heads\n\nnum_heads=8\nCopy pattern detection\nMemory superposition",
+            fillcolor="#E8DAEF"
+        ];
+
+        QInterference [
+            label="Quantum\nInterference\nResolver\n\nAmplitude combination\nConstructive/destructive",
+            fillcolor="#E8DAEF"
+        ];
+
+        Output [
+            label="Output\n[batch, seq_len, vocab]\n\nConstrained Softmax\nentropy <= 0.20",
+            shape=ellipse,
+            fillcolor="#D2B4DE"
+        ];
+    }
+
+    // =============================================
+    // Data Flow Edges
+    // =============================================
+
+    // Feature extraction flow
+    Input -> SmoothLeaky [
+        label="embed + pos_encode"
+    ];
+
+    SmoothLeaky -> GatesNorm [
+        label="activated features"
+    ];
+
+    // Memory interaction
+    GatesNorm -> CIFGMemory [
+        label="h (hidden state)",
+        style=bold
+    ];
+
+    CIFGMemory -> InductionHeads [
+        label="memory context\nC_global @ h",
+        color="#E74C3C"
+    ];
+
+    // Routing flow
+    GatesNorm -> GatesRouter [
+        label="routing logits"
+    ];
+
+    GatesRouter -> Expert1 [
+        label="alpha_1",
+        style=dashed,
+        constraint=false
+    ];
+
+    GatesRouter -> Expert2 [
+        label="alpha_2",
+        style=dashed,
+        constraint=false
+    ];
+
+    GatesRouter -> Expert3 [
+        label="alpha_3",
+        style=dashed,
+        constraint=false
+    ];
+
+    GatesRouter -> Expert4 [
+        label="alpha_4",
+        style=dashed,
+        constraint=false
+    ];
+
+    // Expert to interference
+    Expert1 -> QInterference [
+        label="out_1"
+    ];
+
+    Expert2 -> QInterference [
+        label="out_2"
+    ];
+
+    Expert3 -> QInterference [
+        label="out_3"
+    ];
+
+    Expert4 -> QInterference [
+        label="out_4"
+    ];
+
+    // Expert memory update
+    Expert1 -> CIFGMemory [
+        label="update C_expert[1]",
+        style=dotted,
+        color="#E74C3C",
+        constraint=false
+    ];
+
+    Expert2 -> CIFGMemory [
+        label="update C_expert[2]",
+        style=dotted,
+        color="#E74C3C",
+        constraint=false
+    ];
+
+    // Induction heads
+    GatesNorm -> InductionHeads [
+        label="Q, K, V projections"
+    ];
+
+    // Output assembly
+    InductionHeads -> QInterference [
+        label="attention output",
+        style=bold
+    ];
+
+    QInterference -> Output [
+        label="resolved output",
+        style=bold
+    ];
+
+    // Feedback (memory write from output)
+    Output -> CIFGMemory [
+        label="memory write\n(CIFG gated)",
+        style=dotted,
+        color="#E74C3C",
+        dir=back,
+        constraint=false
+    ];
+
+    // =============================================
+    // Constraint Annotations
+    // =============================================
+
+    // Constraint nodes (diamond shape)
+    node [
+        shape=diamond,
+        fillcolor="#FDEBD0",
+        color="#D35400",
+        fontsize=9,
+        width=1.5,
+        height=0.8
+    ];
+
+    C_entropy [
+        label="ENTROPY\n<= 0.20 nats"
+    ];
+
+    C_spectral [
+        label="SPECTRAL\nsigma_max <= 0.95"
+    ];
+
+    C_huntington [
+        label="HUNTINGTON\nPostulates"
+    ];
+
+    // Constraint edges
+    C_entropy -> GatesRouter [
+        style=bold,
+        color="#D35400",
+        label="enforced",
+        dir=both
+    ];
+
+    C_entropy -> Output [
+        style=bold,
+        color="#D35400",
+        label="enforced",
+        dir=both
+    ];
+
+    C_spectral -> CIFGMemory [
+        style=bold,
+        color="#D35400",
+        label="sigma_max(C)",
+        dir=both
+    ];
+
+    C_spectral -> Expert1 [
+        style=bold,
+        color="#D35400",
+        label="sigma_max(W)",
+        dir=both
+    ];
+
+    C_spectral -> InductionHeads [
+        style=bold,
+        color="#D35400",
+        label="sigma_max(W_QKV)",
+        dir=both
+    ];
+
+    C_huntington -> QInterference [
+        style=bold,
+        color="#D35400",
+        label="Boolean lattice",
+        dir=both
+    ];
+
+    // =============================================
+    // Legend
+    // =============================================
+    subgraph cluster_legend {
+        label="Legend";
+        style="rounded";
+        color="#7F8C8D";
+        fontcolor="#7F8C8D";
+        fontsize=10;
+
+        node [shape=plaintext, fillcolor=white, fontsize=8];
+
+        legend [label=<
+            <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+                <TR><TD COLSPAN="2"><B>Edge Styles</B></TD></TR>
+                <TR><TD>Solid bold</TD><TD>Primary data flow</TD></TR>
+                <TR><TD>Dashed</TD><TD>Routing decisions</TD></TR>
+                <TR><TD>Dotted (red)</TD><TD>Memory updates</TD></TR>
+                <TR><TD>Bold (orange)</TD><TD>Constraint enforcement</TD></TR>
+                <TR><TD COLSPAN="2"><B>Constraints</B></TD></TR>
+                <TR><TD>entropy_bound</TD><TD>0.20 nats</TD></TR>
+                <TR><TD>lambda_max</TD><TD>0.95</TD></TR>
+                <TR><TD>huntington</TD><TD>true (all postulates)</TD></TR>
+            </TABLE>
+        >];
+    }
+}
