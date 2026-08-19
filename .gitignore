@@ -1,0 +1,52 @@
+build/
+*.gguf
+*.safetensors
+__pycache__/
+*.pyc
+.lake/
+.elan/
+*.o
+*.so
+*.ptx
+*.cubin
+target/
+node_modules/
+.env
+.env.local
+wandb/
+runs/
+checkpoints/
+*.egg-info/
+dist/
+
+# Sovereign Node Key — NEVER commit private key material
+sovereign/.node_sk
+sovereign/.node_sk.*
+sovereign/*_sk
+sovereign/*_sk.*
+sovereign/*/.*key*
+sovereign/*/*key*
+
+# Authority Keys — NEVER commit authority private key
+sovereign/authority_sk.pem
+sovereign/authority_sk.pem.*
+sovereign/authority_pk.pem
+sovereign/authority_pk.pem.*
+
+# Allow public keys, deny private keys
+!sovereign/node_pk.pem
+*.pem
+.key
+*.key
+*.priv
+*_private*
+*_secret*
+
+# Private key patterns (any location)
+BEGIN.*PRIVATE
+-----BEGIN
+-----END
+
+# Rust build
+target/
+Cargo.lock

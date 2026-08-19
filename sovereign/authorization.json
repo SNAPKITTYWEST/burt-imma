@@ -1,0 +1,20 @@
+{
+  "authorization_id": "auth-burt-imma-initial-20260818",
+  "node_id": "burt-imma-initial",
+  "node_public_key_hex": "pending_key_generation",
+  "authorization_status": "ACTIVE",
+  "authorization_scope": "protected-execution",
+  "authorization_tier": "individual",
+  "issued_at_utc": "2026-08-18T12:00:00Z",
+  "expires_at_utc": "2026-12-31T23:59:59Z",
+  "issued_by_authority": "burt-imma-authority",
+  "authority_signature": "placeholder_pending_authority_implementation",
+  "revocation_status": "ACTIVE",
+  "commercial_agreement_id": "agreement-burt-imma-001",
+  "metadata": {
+    "deployment_environment": "production",
+    "kernel_signing_capability": true,
+    "release_signing_capability": true,
+    "commercial_usage": true
+  }
+}

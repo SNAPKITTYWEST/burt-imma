@@ -1,0 +1,12 @@
+*.sh linguist-detectable=false linguist-generated=true
+scripts/ linguist-detectable=false
+sovereign/ linguist-detectable=false
+*.md linguist-documentation
+*.cu linguist-language=Cuda
+*.cuh linguist-language=Cuda
+*.lean linguist-language=Lean
+*.py linguist-language=Python
+*.yaml linguist-generated=true
+*.json linguist-generated=true
+*.rs linguist-language=Rust
+*.cpp linguist-language=C++

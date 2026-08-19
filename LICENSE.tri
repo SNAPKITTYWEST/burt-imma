@@ -1,0 +1,46 @@
+TRI-LICENSE STRUCTURE
+=====================
+
+This project is available under THREE licensing options:
+
+1. Business Source License 1.1 (BSL-1.1)
+   - Source-available with commercial restrictions
+   - No managed service offerings at enterprise scale
+   - Converts to AGPL-3.0 after transition period (Change Date: 2028-08-08)
+
+2. GNU Affero General Public License v3.0 (AGPL-3.0)
+   - Strong network copyleft
+   - SaaS/network distribution triggers source disclosure
+   - All modifications must be AGPL-3.0
+
+3. Mozilla Public License 2.0 (MPL-2.0) + Commercial Dual License
+   - Weak copyleft (file-level)
+   - Can combine with proprietary code
+   - Modified files must remain MPL-2.0
+   - Commercial license available for copyleft bypass
+
+================================================================================
+
+WHICH LICENSE APPLIES?
+
+Use this engine itself to determine:
+
+  swipl -q -t halt -f license_policy.pl -- select <your_use_case>
+
+Use cases:
+  - saas_wrapper → AGPL-3.0
+  - enterprise_restricted → BSL-1.1
+  - file_level_mod → MPL-2.0
+  - copyleft_bypass → Commercial
+  - open_source_redistribution → AGPL-3.0
+
+================================================================================
+
+COPYRIGHT HOLDER
+
+Copyright (C) 2026 SnapKitty West / Bel Esprit D'Accord Irrevocable Trust
+
+Contact: jessica@collectivekitty.com
+Web: https://github.com/SNAPKITTYWEST
+
+================================================================================

@@ -1,0 +1,18 @@
+actor_network:
+  d: 256
+  num_actors: 8
+  connectivity: "sparse"
+  signal_types: ["excitatory", "inhibitory", "modulatory", "memory"]
+  propagation_steps: 3
+
+huntington:
+  verify_every: 100
+  tolerance: 1e-6
+  enforce_idempotence: true
+
+training:
+  lr: 0.001
+  batch_size: 64
+  epochs: 100
+  entropy_bound: 0.20
+  huntington_loss_weight: 0.1

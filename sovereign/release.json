@@ -1,0 +1,13 @@
+{
+  "project": "BURT-IMMA",
+  "repository": "SNAPKITTYWEST/burt-imma",
+  "release_version": "0.1.0",
+  "git_commit": "pending_initial_commit",
+  "node_id": "burt-imma-initial",
+  "node_public_key_hex": "pending_key_generation",
+  "release_timestamp_utc": "2026-08-18T12:00:00Z",
+  "manifest_sha256": "pending_manifest_generation",
+  "signature_hex": "pending_signature",
+  "signature_algorithm": "Ed25519",
+  "verification_method": "Ed25519"
+}

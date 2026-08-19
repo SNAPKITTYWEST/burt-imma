@@ -1,0 +1,23 @@
+#!/bin/bash
+# BURT-IMMA Protected Execution Gate
+# Shell wrapper for burt_imma_gate.py
+# Contact: jessica@collectivekitty.com
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+export BURT_IMMA_REPO_ROOT="$REPO_ROOT"
+
+PYTHON_GATE="$REPO_ROOT/burt_imma_gate.py"
+
+if [ ! -f "$PYTHON_GATE" ]; then
+  echo "ERROR: Python gate not found at $PYTHON_GATE"
+  exit 3
+fi
+
+if ! command -v python3 &> /dev/null; then
+  echo "ERROR: python3 not found in PATH"
+  exit 3
+fi
+
+exec python3 "$PYTHON_GATE" "$@"

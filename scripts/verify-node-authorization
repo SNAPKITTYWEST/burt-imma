@@ -1,0 +1,49 @@
+#!/bin/bash
+# BURT-IMMA Node Authorization Verification
+# Contact: jessica@collectivekitty.com
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+SOVEREIGN_DIR="$REPO_ROOT/sovereign"
+
+echo "[1/5] Locating authorization record..."
+if [ ! -f "$SOVEREIGN_DIR/authorization.json" ]; then
+  echo "ERROR: Authorization record not found"
+  exit 2
+fi
+echo "    Authorization record found"
+
+echo "[2/5] Locating node identity..."
+if [ ! -f "$SOVEREIGN_DIR/node.json" ]; then
+  echo "ERROR: Node identity not found"
+  exit 2
+fi
+echo "    Node identity found"
+
+echo "[3/5] Parsing authorization record..."
+STATUS=$(grep 'authorization_status' "$SOVEREIGN_DIR/authorization.json" | head -1 | sed 's/.*"authorization_status": "\([^"]*\)".*/\1/')
+REVOKED=$(grep 'revocation_status' "$SOVEREIGN_DIR/authorization.json" | head -1 | sed 's/.*"revocation_status": "\([^"]*\)".*/\1/')
+echo "    Status: $STATUS"
+
+echo "[4/5] Validating authorization status..."
+if [ "$STATUS" != "ACTIVE" ]; then
+  echo "    Status is $STATUS (not authorized)"
+  exit 1
+fi
+echo "    Status is ACTIVE"
+
+if [ "$REVOKED" != "ACTIVE" ]; then
+  echo "    Revocation status is $REVOKED"
+  exit 1
+fi
+echo "    Not revoked"
+
+echo "[5/5] Verified."
+echo ""
+echo "=========================================="
+echo "AUTHORIZATION_STATUS: VALID"
+echo "=========================================="
+
+exit 0

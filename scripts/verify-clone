@@ -1,0 +1,52 @@
+#!/bin/bash
+# BURT-IMMA Clone Integrity Verification
+# Verifies that a clone matches the official release.
+# Contact: jessica@collectivekitty.com
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+SOVEREIGN_DIR="$REPO_ROOT/sovereign"
+
+echo "========================================"
+echo "BURT-IMMA CLONE INTEGRITY VERIFICATION"
+echo "========================================"
+echo ""
+
+if [ ! -f "$SOVEREIGN_DIR/release.json" ]; then
+  echo "ERROR: sovereign/release.json not found"
+  exit 1
+fi
+
+echo "[1] Reading release metadata..."
+RELEASE_FILE="$SOVEREIGN_DIR/release.json"
+GIT_COMMIT=$(grep '"git_commit"' "$RELEASE_FILE" | head -1 | cut -d'"' -f4)
+VERSION=$(grep '"release_version"' "$RELEASE_FILE" | head -1 | cut -d'"' -f4)
+
+echo "    Version: $VERSION"
+echo ""
+
+echo "[2] Verifying git commit..."
+CURRENT_COMMIT=$(cd "$REPO_ROOT" && git rev-parse HEAD 2>/dev/null || echo "")
+
+if [ -z "$CURRENT_COMMIT" ]; then
+  echo "    Not a git repository"
+  exit 2
+fi
+
+if [ "$CURRENT_COMMIT" != "$GIT_COMMIT" ]; then
+  echo "    Commit mismatch"
+  echo "    Expected: $GIT_COMMIT"
+  echo "    Actual:   $CURRENT_COMMIT"
+  exit 1
+fi
+
+echo "    Commit matches release"
+echo ""
+echo "========================================"
+echo "STATUS: INTEGRITY_VERIFIED"
+echo "========================================"
+echo ""
+
+exit 0

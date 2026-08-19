@@ -1,0 +1,23 @@
+model:
+  num_classes: 1000
+  alpha: 0.01
+  beta: 1.0
+  entropy_bound: 0.20
+
+training:
+  lr: 0.01
+  momentum: 0.9
+  weight_decay: 0.0005
+  batch_size: 128
+  epochs: 90
+  lr_schedule: "step"
+  lr_decay_factor: 0.1
+  lr_decay_epochs: [30, 60, 80]
+
+data:
+  dataset: "imagenet"
+  input_size: 227
+  augmentation:
+    horizontal_flip: true
+    random_crop: true
+    color_jitter: false  # Replaced by BiEncoder retrieval

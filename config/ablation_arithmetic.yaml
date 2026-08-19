@@ -1,0 +1,62 @@
+experiment:
+  name: "mmep_arithmetic_ablation"
+  seed: 42
+  device: "cuda:0"
+
+model:
+  hidden_dim: 256
+  num_layers: 4
+  num_experts: 4
+  top_k: 1
+  d_mem: 256
+
+mmep:
+  T_free: 20
+  T_nudge: 4
+  alpha_relax: 0.5
+  beta: 0.1
+  rho_ret: 1.0
+  rho_inst: 0.5
+  lambda_max: 0.95
+  lr_W: 0.001
+  lr_C_global: 0.01
+  lr_C_expert: 0.005
+
+data:
+  corpus_size: 10000
+  train_queries: 5000
+  val_queries: 500
+  test_queries: 1000
+  max_seq_len: 128
+
+training:
+  batch_size: 32
+  num_epochs: 50
+  eval_every: 5
+  checkpoint_every: 10
+  gradient_clip: 1.0
+
+ablations:
+  - name: "full_mmep"
+    description: "Complete MMEP with all components"
+    disable: []
+  - name: "no_memory"
+    description: "MMEP without matrix memory"
+    disable: ["C_global", "C_expert"]
+  - name: "no_constraint"
+    description: "MMEP without constraint projection"
+    disable: ["projection"]
+  - name: "no_moe"
+    description: "MMEP with single expert"
+    override:
+      num_experts: 1
+  - name: "standard_bp"
+    description: "Standard backpropagation baseline"
+    disable: ["mmep"]
+    use_backprop: true
+
+logging:
+  wandb_project: "burt-imma-ablation"
+  log_entropy: true
+  log_spectral_norm: true
+  log_memory_trace: true
