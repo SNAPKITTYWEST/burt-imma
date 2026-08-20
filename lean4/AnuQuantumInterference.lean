@@ -47,23 +47,42 @@ theorem phase_shift_values (layer_idx n_layers : Nat)
     (h_valid : layer_idx < n_layers)
     (h_pos : n_layers > 0) :
     0 ≤ phase_shift layer_idx n_layers ∧
-    phase_shift layer_idx n_layers < 2 * Real.pi := sorry
+    phase_shift layer_idx n_layers < 2 * Real.pi := by
+  have h₁ : (layer_idx : ℝ) ≥ 0 := by exact_mod_cast Nat.zero_le layer_idx
+  have h₂ : (n_layers : ℝ) > 0 := by exact_mod_cast h_pos
+  have h₃ : (layer_idx : ℝ) < (n_layers : ℝ) := by exact_mod_cast h_valid
+  have h₅ : (layer_idx : ℝ) / (n_layers : ℝ) < 1 := by
+    rw [div_lt_one h₂]; exact_mod_cast h_valid
+  constructor
+  · simp [phase_shift]
+    positivity
+  · simp [phase_shift]
+    have : (layer_idx : ℝ) / (n_layers : ℝ) < 1 := h₅
+    have hpi : 0 < Real.pi := Real.pi_pos
+    nlinarith
 
 /-- Small perturbation preserves sign structure -/
 theorem perturbation_preserves_structure (w epsilon : ℝ)
     (h_small : |epsilon| < |w|)
     (h_w_pos : w > 0) :
-    perturb w epsilon > 0 := sorry
+    perturb w epsilon > 0 := by
+  have h₁ : |w| = w := abs_of_pos h_w_pos
+  have h₂ : |epsilon| < w := by rwa [h₁] at h_small
+  have h₃ : -w < epsilon := (abs_lt.mp h₂).1
+  simp only [perturb]
+  linarith
 
 /-- Pipeline produces output for every input with a matching mask -/
 theorem pipeline_soundness (weights : List ℝ) (masks : List Bool)
     (h_len : weights.length = masks.length) :
-    (pipeline weights masks).length = weights.length := sorry
+    (pipeline weights masks).length = weights.length := by
+  simp only [pipeline, List.length_zipWith, h_len, min_self]
 
 /-- Pipeline output fully determined by inputs (no hidden state) -/
 theorem pipeline_completeness (weights1 weights2 : List ℝ) (masks1 masks2 : List Bool)
     (h_w : weights1 = weights2)
     (h_m : masks1 = masks2) :
-    pipeline weights1 masks1 = pipeline weights2 masks2 := sorry
+    pipeline weights1 masks1 = pipeline weights2 masks2 := by
+  rw [h_w, h_m]
 
 end

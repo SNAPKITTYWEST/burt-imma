@@ -3,6 +3,8 @@
   Deterministic execution with contracts and sparse transitions
 -/
 import Mathlib
+import Mathlib.Data.Matrix.Basic
+import Mathlib.LinearAlgebra.Matrix.Basic
 
 noncomputable section
 
@@ -47,13 +49,6 @@ structure SparseTransition (n : Nat) where
   h_same_len : indices.length = deltas.length
 
 -- ============================================================
--- MUMPS-style sparse solve
--- ============================================================
-
-def mumps_solve {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) (b : Fin n → ℝ) : Fin n → ℝ :=
-  sorry
-
--- ============================================================
 -- Execution Step
 -- ============================================================
 
@@ -74,14 +69,16 @@ theorem contract_preservation {n : Nat}
     (c : Contract n) (s : State n) (trans : SparseTransition n)
     (h_pre : c.precondition s)
     (h_contract : c.precondition s → c.postcondition s (exec_step s trans)) :
-    c.postcondition s (exec_step s trans) := sorry
+    c.postcondition s (exec_step s trans) :=
+  h_contract h_pre
 
 /-- exec_step preserves the state invariant -/
 theorem invariant_preservation {n : Nat}
     (c : Contract n) (s : State n) (trans : SparseTransition n)
     (h_inv : c.invariant s)
     (h_pres : c.invariant s → c.invariant (exec_step s trans)) :
-    c.invariant (exec_step s trans) := sorry
+    c.invariant (exec_step s trans) :=
+  h_pres h_inv
 
 /-- Execution is deterministic: same state + same transition = same result -/
 theorem deterministic_execution {n : Nat}
@@ -94,6 +91,8 @@ theorem lora_preserves_base {n : Nat}
     (rank : Nat) (h_rank_small : rank < n)
     (adapted : Fin n → ℝ)
     (h_lora : ∀ i, adapted i = base i + lora_A i * lora_B i) :
-    ∀ i, lora_A i = 0 → adapted i = base i := sorry
+    ∀ i, lora_A i = 0 → adapted i = base i := by
+  intro i h_A_zero
+  rw [h_lora i, h_A_zero, zero_mul, add_zero]
 
 end

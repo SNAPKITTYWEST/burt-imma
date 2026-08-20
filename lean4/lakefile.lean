@@ -48,3 +48,9 @@ lean_lib SuperpositionedInduction where
 
 lean_lib AnuQuantumInterference where
   srcDir := "."
+
+lean_lib RBM where
+  srcDir := "."
+
+lean_lib BlackHoleGravity where
+  srcDir := "."
